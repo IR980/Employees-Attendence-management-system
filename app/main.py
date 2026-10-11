@@ -1,18 +1,9 @@
-"""
-HROne Employee Attendance & Analytics API (contract v2.0).
-
-Run from the repository root:
-    uvicorn app.main:app --port 8000
-
-Configuration:
-    MONGO_URI (required in production; defaults to local MongoDB for development)
-    MONGO_DB  (defaults to attendance_db)
-
-All API instants are epoch milliseconds. MongoDB stores BSON datetimes in UTC.
-Calendar dates and shift times are IST strings, as required by the assignment.
-"""
 from __future__ import annotations
 
+import base64
+from bson.timestamp import Timestamp
+from bson import ObjectId
+from bson.decimal128 import Decimal128
 import calendar
 import os
 import re
@@ -414,10 +405,43 @@ def present_days_expression() -> dict[str, Any]:
     }
 
 
-def explain_aggregate(collection, pipeline: list[dict[str, Any]]) -> dict[str, Any]:
-    # PyMongo's explain helper is not available consistently across all versions;
-    # run the MongoDB command directly to return raw executionStats.
-    return db.command({
+def make_json_safe(value):
+    """Convert BSON and binary values into JSON-safe values."""
+
+    if isinstance(value, Timestamp):
+        return {"time": value.time, "inc": value.inc}
+
+    if isinstance(value, datetime):
+        return value.isoformat()
+
+    if isinstance(value, ObjectId):
+        return str(value)
+
+    if isinstance(value, Decimal128):
+        return str(value)
+
+    if isinstance(value, bytes):
+        return {
+            "encoding": "base64",
+            "data": base64.b64encode(value).decode("ascii"),
+        }
+
+    if isinstance(value, dict):
+        return {
+            str(key): make_json_safe(item)
+            for key, item in value.items()
+        }
+
+    if isinstance(value, (list, tuple)):
+        return [make_json_safe(item) for item in value]
+
+    return value
+
+
+
+def explain_aggregate(collection, pipeline):
+    """Return explain output with BSON values converted to JSON-safe values."""
+    result = db.command({
         "explain": {
             "aggregate": collection.name,
             "pipeline": pipeline,
@@ -426,6 +450,7 @@ def explain_aggregate(collection, pipeline: list[dict[str, Any]]) -> dict[str, A
         "verbosity": "executionStats",
     })
 
+    return make_json_safe(result)
 
 # -------------------------------- System -------------------------------------
 

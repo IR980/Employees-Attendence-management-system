@@ -13,7 +13,7 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-$env:MONGO_URI = "mongodb://localhost:27017"
+$env:MONGO_URI = "mongodb atlas url"
 $env:MONGO_DB = "attendance_db"
 uvicorn app.main:app --port 8000 --reload
 ```
