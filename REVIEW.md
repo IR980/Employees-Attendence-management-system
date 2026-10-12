@@ -5,6 +5,7 @@ The starter has several correctness, contract, and scale defects. Verify these f
 | # | Where | What is wrong | How to notice | Fix in this implementation |
 |---|---|---|---|---|
 | 1 | `health()` | Always returns 200 without checking MongoDB. | Stop MongoDB and call `/health`. | Executes `ping`; maps connectivity failure to 503. |
+
 | 2 | MongoClient setup | PyMongo timezone handling is implicit; defaults can return naive datetimes. | Serialize a seeded BSON date. | Uses timezone-aware UTC client and normalizes values at boundaries. |
 | 3 | `compute_late_minutes()` | Assumes the timestamp's local date/time and does not correctly handle overnight attendance dates/time zones. | Punch around midnight on a night shift. | Converts UTC instants to IST and calculates against the attendance date. |
 | 4 | `compute_work_hours()` | Python `round()` uses ties-to-even and binary floats. | Exercise a half-way rounding case. | Uses `Decimal` with `ROUND_HALF_UP`. |
