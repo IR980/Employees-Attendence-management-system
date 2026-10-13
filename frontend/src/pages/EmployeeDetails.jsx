@@ -14,7 +14,6 @@ import {
 
 import Topbar from "../components/layout/Topbar";
 import { getAttendance } from "../services/attendanceService";
-
 const PAGE_SIZE = 10;
 
 function getItems(response) {
@@ -121,6 +120,7 @@ export default function EmployeeDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedHistory, setExpandedHistory] = useState({});
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,7 +183,7 @@ export default function EmployeeDetails() {
     return () => {
       cancelled = true;
     };
-  }, [empCode, month, page]);
+  }, [empCode, month, page, refreshKey]);
 
   function handleMonthChange(event) {
     setMonth(event.target.value);
@@ -197,8 +197,6 @@ export default function EmployeeDetails() {
     // when the current page is already page 1.
     setRefreshKey((current) => current + 1);
   }
-
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     // Refresh is handled by the attendance loading effect.
@@ -374,7 +372,7 @@ export default function EmployeeDetails() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1100px] text-left text-sm">
+          <table className="w-full min-w-275 text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-5 py-4">Date</th>
@@ -424,6 +422,7 @@ export default function EmployeeDetails() {
                     : [];
                   const historyKey = `${record.emp_code}-${record.date}-${index}`;
                   const isExpanded = Boolean(expandedHistory[historyKey]);
+                  
 
                   return (
                     <tr

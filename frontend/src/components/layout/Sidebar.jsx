@@ -7,6 +7,7 @@ import {
   Settings,
   Building2,
   UserRoundSearch,
+  ShieldCheck
 } from "lucide-react";
 
 const navigation = [
@@ -36,6 +37,11 @@ const navigation = [
     path: "/analytics/employee",
     icon: UserRoundSearch,
   },
+  {
+    label: "Admin Panel",
+    path: "/admin",
+    icon: ShieldCheck
+  }
 ];
 
 export default function Sidebar() {

@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { CalendarDays, RefreshCw, Search, LogIn, LogOut } from "lucide-react";
-
+import {
+  CalendarDays,
+  ClipboardCheck,
+  RefreshCw,
+  Search,
+  LogIn,
+  LogOut,
+} from "lucide-react";
+import RegularizationModal from "../components/attendance/RegularizationModal";
 import Topbar from "../components/layout/Topbar";
 import {
   getAttendance,
@@ -78,6 +85,7 @@ export default function Attendance() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  const [selectedRecord, setSelectedRecord] = useState(null);
   const loadAttendance = useCallback(async () => {
     try {
       setLoading(true);
@@ -360,6 +368,7 @@ export default function Attendance() {
                 <th className="px-5 py-4 font-semibold">Punch In</th>
                 <th className="px-5 py-4 font-semibold">Punch Out</th>
                 <th className="px-5 py-4 font-semibold">Late Minutes</th>
+                <th className="px-5 py-4 font-semibold">Action</th>
               </tr>
             </thead>
 
@@ -367,7 +376,7 @@ export default function Attendance() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-5 py-12 text-center text-slate-500"
                   >
                     Loading attendance records...
@@ -376,7 +385,7 @@ export default function Attendance() {
               ) : visibleRecords.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-5 py-12 text-center text-slate-500"
                   >
                     No attendance records found for these filters.
@@ -412,6 +421,16 @@ export default function Attendance() {
                     <td className="px-5 py-4 text-slate-600">
                       {record.late_minutes ?? "—"}
                     </td>
+                    <td className="px-5 py-4">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRecord(record)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100"
+                      >
+                        <ClipboardCheck size={15} />
+                        Regularize
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -444,6 +463,17 @@ export default function Attendance() {
           </div>
         </div>
       </section>
+      {selectedRecord && (
+        <RegularizationModal
+          record={selectedRecord}
+          onClose={() => setSelectedRecord(null)}
+          onSuccess={async () => {
+            setMessage("Attendance correction saved successfully.");
+            setError("");
+            await loadAttendance();
+          }}
+        />
+      )}
     </main>
   );
 }

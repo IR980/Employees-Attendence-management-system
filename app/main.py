@@ -289,7 +289,11 @@ def startup() -> None:
 
 class EmployeeCreate(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    emp_code: str = Field(pattern=r"^EMP\d{4,6}$")
+    emp_code: str = Field(...,
+        min_length=1,
+        max_length=50,
+        description="Company-assigned employee identifier",
+    )
     name: str = Field(min_length=1, max_length=100)
     email: str = Field(max_length=120, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     department: str = Field(min_length=1, max_length=50)

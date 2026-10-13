@@ -18,3 +18,16 @@ export const punchOut = async (empCode) => {
   });
   return response.data;
 };
+
+export const regularizeAttendance = async (
+  empCode,
+  date,
+  correction
+) => {
+  const response = await api.patch(
+    `/attendance/${encodeURIComponent(empCode)}/${encodeURIComponent(date)}`,
+    correction
+  );
+
+  return response.data;
+};
